@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 const INP =
   'rounded border border-zinc-300 bg-white px-1 py-0.5 font-mono text-xs outline-none dark:border-zinc-600 dark:bg-zinc-950'
 const SEL =
@@ -50,6 +52,12 @@ function convertTo(value: unknown, type: JsonType): unknown {
     case 'array':
       return Array.isArray(value) ? value : []
   }
+}
+
+function summary(value: unknown): string {
+  return Array.isArray(value)
+    ? `[${(value as unknown[]).length}]`
+    : `{${Object.keys(value as object).length}}`
 }
 
 function TypeSelect({
@@ -112,9 +120,22 @@ function Row({
   depth: number
 }) {
   const composite = isComposite(value)
+  const [open, setOpen] = useState(depth < 2)
+
   return (
-    <div style={{ paddingLeft: depth * 10 }}>
-      <div className="flex items-center gap-1">
+    <div>
+      <div className="group flex items-center gap-1">
+        {composite ? (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            className="w-4 shrink-0 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+          >
+            {open ? '▾' : '▸'}
+          </button>
+        ) : (
+          <span className="w-4 shrink-0" />
+        )}
         <TypeSelect value={value} onChange={onChange} />
         {keyName !== undefined ? (
           <input
@@ -129,11 +150,13 @@ function Row({
         )}
         <span className="text-zinc-400">:</span>
         {composite ? (
-          <span className="font-mono text-xs text-zinc-400">
-            {Array.isArray(value)
-              ? `[${(value as unknown[]).length}]`
-              : `{${Object.keys(value as object).length}}`}
-          </span>
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            className="font-mono text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+          >
+            {summary(value)}
+          </button>
         ) : (
           <ScalarInput value={value} onChange={onChange} />
         )}
@@ -141,13 +164,13 @@ function Row({
           type="button"
           onClick={onRemove}
           title="삭제"
-          className="ml-auto rounded px-1 text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+          className="ml-auto rounded px-1 text-zinc-400 opacity-0 transition hover:bg-zinc-200 group-hover:opacity-100 dark:hover:bg-zinc-700"
         >
           ×
         </button>
       </div>
-      {composite && (
-        <div className="mt-1">
+      {composite && open && (
+        <div className="ml-2 border-l border-zinc-200 pl-2 dark:border-zinc-700">
           <Node value={value} onChange={onChange} depth={depth + 1} />
         </div>
       )}
@@ -155,21 +178,12 @@ function Row({
   )
 }
 
-function AddButton({
-  onClick,
-  label,
-  depth,
-}: {
-  onClick: () => void
-  label: string
-  depth: number
-}) {
+function AddButton({ onClick, label }: { onClick: () => void; label: string }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      style={{ marginLeft: depth * 10 }}
-      className="text-[11px] text-indigo-500 hover:underline"
+      className="ml-5 text-[11px] text-indigo-500 hover:underline"
     >
       {label}
     </button>
@@ -198,7 +212,7 @@ function Node({
             depth={depth}
           />
         ))}
-        <AddButton onClick={() => onChange([...value, ''])} label="+ 항목" depth={depth} />
+        <AddButton onClick={() => onChange([...value, ''])} label="+ 항목" />
       </div>
     )
   }
@@ -226,11 +240,7 @@ function Node({
             depth={depth}
           />
         ))}
-        <AddButton
-          onClick={() => onChange({ ...obj, '': '' })}
-          label="+ 필드"
-          depth={depth}
-        />
+        <AddButton onClick={() => onChange({ ...obj, '': '' })} label="+ 필드" />
       </div>
     )
   }
