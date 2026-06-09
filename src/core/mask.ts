@@ -1,0 +1,137 @@
+export const DEFAULT_MASK_KEYS = [
+  'authorization',
+  'cookie',
+  'set-cookie',
+  'x-api-key',
+  'api-key',
+  'x-auth-token',
+  'proxy-authorization',
+]
+
+const MASK_KEY_PATTERNS = [/token$/i, /secret$/i, /-key$/i]
+
+const SENSITIVE_QUERY_KEYS = new Set([
+  'token',
+  'access_token',
+  'refresh_token',
+  'api_key',
+  'apikey',
+  'key',
+  'secret',
+  'password',
+])
+
+export interface MaskOptions {
+  enabled: boolean
+  maskKeys: string[]
+}
+
+export function isSensitiveHeader(name: string, maskKeys: string[]): boolean {
+  const lower = name.toLowerCase()
+  if (maskKeys.some((k) => k.toLowerCase() === lower)) return true
+  return MASK_KEY_PATTERNS.some((re) => re.test(lower))
+}
+
+export function maskValue(value: string): string {
+  const scheme = /^(bearer|basic|digest)\s+(.+)$/i.exec(value)
+  if (scheme) return `${scheme[1]} ***MASKED***`
+  if (value.length <= 8) return '***MASKED***'
+  return `${value.slice(0, 4)}…***MASKED***`
+}
+
+export function isSensitiveQueryKey(key: string): boolean {
+  return SENSITIVE_QUERY_KEYS.has(key.toLowerCase())
+}
+
+function luhnValid(digits: string): boolean {
+  let sum = 0
+  let alt = false
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let d = digits.charCodeAt(i) - 48
+    if (alt) {
+      d *= 2
+      if (d > 9) d -= 9
+    }
+    sum += d
+    alt = !alt
+  }
+  return sum % 10 === 0
+}
+
+export function maskText(text: string, enabled: boolean): string {
+  if (!enabled || !text) return text
+  let out = text
+
+  out = out.replace(
+    /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,
+    '***JWT***',
+  )
+
+  out = out.replace(/\bBearer\s+[A-Za-z0-9._~+/=-]+/gi, 'Bearer ***MASKED***')
+
+  out = out.replace(/\d(?:[ -]?\d){12,18}/g, (m) => {
+    const digits = m.replace(/[ -]/g, '')
+    if (digits.length < 13 || digits.length > 19) return m
+    if (!luhnValid(digits)) return m
+    return `**** **** **** ${digits.slice(-4)}`
+  })
+
+  out = out.replace(/\b(\d{6})-?[1-4]\d{6}\b/g, '$1-*******')
+
+  out = out.replace(
+    /\b([A-Za-z0-9._%+-])[A-Za-z0-9._%+-]*@([A-Za-z0-9.-]+\.[A-Za-z]{2,})\b/g,
+    '$1***@$2',
+  )
+
+  return out
+}
+
+export function maskDeep(value: unknown, enabled: boolean): unknown {
+  if (!enabled) return value
+  if (typeof value === 'string') return maskText(value, true)
+  if (Array.isArray(value)) return value.map((v) => maskDeep(v, true))
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(value)) out[k] = maskDeep(v, true)
+    return out
+  }
+  return value
+}
+
+export function maskHeaders(
+  headers: Record<string, string>,
+  opts: MaskOptions,
+): Record<string, string> {
+  if (!opts.enabled) return headers
+  const out: Record<string, string> = {}
+  for (const [key, value] of Object.entries(headers)) {
+    out[key] = isSensitiveHeader(key, opts.maskKeys)
+      ? maskValue(value)
+      : maskText(value, true)
+  }
+  return out
+}
+
+export function maskUrl(url: string, enabled: boolean): string {
+  if (!enabled) return url
+  try {
+    const u = new URL(url)
+    let changed = false
+    for (const key of [...u.searchParams.keys()]) {
+      if (SENSITIVE_QUERY_KEYS.has(key.toLowerCase())) {
+        u.searchParams.set(key, '***MASKED***')
+        changed = true
+      }
+    }
+    return maskText(changed ? u.toString() : url, true)
+  } catch {
+    return maskText(url, true)
+  }
+}
+
+export function hasSensitive(
+  headers: Record<string, string>,
+  maskKeys: string[],
+): boolean {
+  return Object.keys(headers).some((k) => isSensitiveHeader(k, maskKeys))
+}
