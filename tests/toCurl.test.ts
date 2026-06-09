@@ -74,6 +74,15 @@ describe('toCurl', () => {
     expect(out).not.toContain('supersecret')
   })
 
+  it('adds --compressed and drops the accept-encoding header', () => {
+    const out = toCurl(
+      makeRequest({ reqHeaders: { 'Accept-Encoding': 'gzip, deflate, br' } }),
+      opts,
+    )
+    expect(out).toContain('--compressed')
+    expect(out.toLowerCase()).not.toContain('accept-encoding')
+  })
+
   it('uses ^ continuation in windows mode', () => {
     const out = toCurl(
       makeRequest({ method: 'POST', reqHeaders: { A: 'b' } }),

@@ -8,6 +8,7 @@ export function headersToRecord(headers: HarHeader[] | undefined): Record<string
   if (!headers) return out
   for (const h of headers) {
     if (!h || typeof h.name !== 'string') continue
+    if (h.name.startsWith(':')) continue
     out[h.name] = h.name in out ? `${out[h.name]}, ${h.value}` : h.value
   }
   return out

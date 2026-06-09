@@ -17,7 +17,12 @@ export function toCurl(req: CapturedRequest, opts: ConvertOptions): string {
   const method = req.method.toUpperCase()
   if (method !== 'GET') lines.push(`-X ${method}`)
 
+  let compressed = false
   for (const [key, raw] of Object.entries(req.reqHeaders)) {
+    if (key.toLowerCase() === 'accept-encoding') {
+      compressed = true
+      continue
+    }
     if (!opts.mask) {
       lines.push(`-H ${singleQuote(`${key}: ${raw}`)}`)
       continue
@@ -27,6 +32,8 @@ export function toCurl(req: CapturedRequest, opts: ConvertOptions): string {
     const useVarQuote = opts.placeholders && value.includes('$')
     lines.push(`-H ${useVarQuote ? doubleQuoteKeepVars(seg) : singleQuote(seg)}`)
   }
+
+  if (compressed) lines.push('--compressed')
 
   const body = req.reqBody
   if (body.kind === 'json' || body.kind === 'text') {

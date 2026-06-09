@@ -11,6 +11,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         panel: resolve(__dirname, 'src/panel/index.html'),
+        viewer: resolve(__dirname, 'src/viewer/index.html'),
       },
     },
   },

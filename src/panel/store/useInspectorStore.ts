@@ -4,39 +4,32 @@ import { EMPTY_FILTER, type FilterState } from '../../core/filter'
 import { DEFAULT_MASK_KEYS } from '../../core/mask'
 import { decodeContent } from '../../core/mime'
 import { clearRaw, removeRaw, getRaw } from '../rawEntries'
-import {
-  persistRequest,
-  deleteRequest,
-  persistResBody,
-  clearAll,
-  loadAll,
-} from '../db'
 
 interface InspectorState {
   requests: CapturedRequest[]
   selectedId: string | null
+  selectedIds: string[]
   paused: boolean
   maskEnabled: boolean
-  placeholderMode: boolean
+  safeShare: boolean
   maskKeys: string[]
   maxEntries: number
   filter: FilterState
   resBodies: Record<string, ResBodyEntry>
   diffBaseId: string | null
   diffCompareId: string | null
-  hydrated: boolean
   addRequest: (req: CapturedRequest) => void
   clear: () => void
   select: (id: string | null) => void
+  setSelection: (ids: string[], primary: string | null) => void
   togglePaused: () => void
   toggleMask: () => void
-  togglePlaceholderMode: () => void
+  toggleSafeShare: () => void
   setFilter: (patch: Partial<FilterState>) => void
   setResBody: (id: string, entry: ResBodyEntry) => void
   setDiffBase: (id: string | null) => void
   setDiffCompare: (id: string | null) => void
   clearDiff: () => void
-  hydrate: () => Promise<void>
   importEntries: (
     reqs: CapturedRequest[],
     bodies: Record<string, ResBodyEntry>,
@@ -47,94 +40,65 @@ interface InspectorState {
 export const useInspectorStore = create<InspectorState>((set, get) => ({
   requests: [],
   selectedId: null,
+  selectedIds: [],
   paused: false,
   maskEnabled: true,
-  placeholderMode: false,
+  safeShare: true,
   maskKeys: DEFAULT_MASK_KEYS,
   maxEntries: 1000,
   filter: EMPTY_FILTER,
   resBodies: {},
   diffBaseId: null,
   diffCompareId: null,
-  hydrated: false,
 
-  addRequest: (req) => {
-    void persistRequest(req)
+  addRequest: (req) =>
     set((state) => {
       const next = [...state.requests, req]
       if (next.length > state.maxEntries) {
         const overflow = next.length - state.maxEntries
-        const dropped = next.slice(0, overflow)
-        for (const d of dropped) {
-          removeRaw(d.id)
-          void deleteRequest(d.id)
-        }
+        for (const d of next.slice(0, overflow)) removeRaw(d.id)
         return { requests: next.slice(overflow) }
       }
       return { requests: next }
-    })
-  },
+    }),
 
   clear: () => {
     clearRaw()
-    void clearAll()
     set({
       requests: [],
       selectedId: null,
+      selectedIds: [],
       resBodies: {},
       diffBaseId: null,
       diffCompareId: null,
     })
   },
 
-  select: (id) => set({ selectedId: id }),
+  select: (id) => set({ selectedId: id, selectedIds: id ? [id] : [] }),
+  setSelection: (ids, primary) =>
+    set({ selectedIds: ids, selectedId: primary }),
   togglePaused: () => set((state) => ({ paused: !state.paused })),
   toggleMask: () => set((state) => ({ maskEnabled: !state.maskEnabled })),
-  togglePlaceholderMode: () =>
-    set((state) => ({ placeholderMode: !state.placeholderMode })),
+  toggleSafeShare: () => set((state) => ({ safeShare: !state.safeShare })),
   setFilter: (patch) =>
     set((state) => ({ filter: { ...state.filter, ...patch } })),
 
-  setResBody: (id, entry) => {
-    if (entry.state === 'loaded' || entry.state === 'truncated') {
-      void persistResBody(id, entry)
-    }
-    set((state) => ({ resBodies: { ...state.resBodies, [id]: entry } }))
-  },
+  setResBody: (id, entry) =>
+    set((state) => ({ resBodies: { ...state.resBodies, [id]: entry } })),
 
   setDiffBase: (id) => set({ diffBaseId: id }),
   setDiffCompare: (id) => set({ diffCompareId: id }),
   clearDiff: () => set({ diffCompareId: null }),
 
-  hydrate: async () => {
-    if (get().hydrated) return
-    const { requests, resBodies } = await loadAll()
-    set((state) => ({
-      hydrated: true,
-      requests: state.requests.length ? state.requests : requests,
-      resBodies: Object.keys(state.resBodies).length ? state.resBodies : resBodies,
-    }))
-  },
-
   importEntries: (reqs, bodies) => {
-    for (const r of reqs) void persistRequest(r)
-    for (const [id, entry] of Object.entries(bodies)) {
-      if (entry.state === 'loaded' || entry.state === 'truncated') {
-        void persistResBody(id, entry)
-      }
-    }
-    set((state) => {
-      let merged = [...state.requests, ...reqs]
-      if (merged.length > state.maxEntries) {
-        const overflow = merged.length - state.maxEntries
-        const dropped = merged.slice(0, overflow)
-        for (const d of dropped) {
-          removeRaw(d.id)
-          void deleteRequest(d.id)
-        }
-        merged = merged.slice(overflow)
-      }
-      return { requests: merged, resBodies: { ...state.resBodies, ...bodies } }
+    clearRaw()
+    set({
+      requests: reqs.slice(-get().maxEntries),
+      resBodies: bodies,
+      selectedId: null,
+      selectedIds: [],
+      diffBaseId: null,
+      diffCompareId: null,
     })
   },
 

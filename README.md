@@ -26,6 +26,36 @@ Useful for:
 
 Key differentiators: (1) safe sharing via automatic token masking, (2) regex and full-text body search, (3) cURL/HTTPie/Postman conversion plus auto-generated endpoint docs, (4) HAR import so you can analyze someone else's traffic in the same view, (5) a minimal-permission design that uses the DevTools API instead of network interception.
 
+## Example: handing a failing request to a backend developer
+
+You hit a 403 on the frontend and need a backend developer to reproduce it.
+
+1. Open F12 → API Inspector and reproduce the request.
+2. Select it → Convert tab. Turn on `mask`, then turn on `$ placeholder`.
+3. Copy the result and paste it into Slack or a ticket:
+
+```bash
+curl 'https://api.company.com/orders/123' \
+  -X POST \
+  -H "Authorization: Bearer $AUTH_TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data-raw '{"qty":2}'
+```
+
+No real token is included, so nothing is leaked. The recipient supplies their own credential and runs it as-is:
+
+```bash
+export AUTH_TOKEN="their-own-token"
+# paste the curl above
+```
+
+Which mode to use:
+
+- Debugging alone (you need the real values) — mask off
+- Sharing where the recipient must run it too — mask on + placeholder on
+- Sharing just the shape, not meant to run — mask on, placeholder off (`***MASKED***`)
+- Postman collaboration (team manages tokens as variables) — placeholder on → `{{AUTH_TOKEN}}`
+
 ## Features
 
 - DevTools panel — integrated as an "API Inspector" tab inside F12
@@ -33,8 +63,8 @@ Key differentiators: (1) safe sharing via automatic token masking, (2) regex and
 - Auto masking — `Authorization` / `Cookie` / `*-token` / query tokens are hidden on display and in exports
 - Convert — cURL (multiline, multipart/form) · HTTPie · Postman Collection. An optional placeholder mode swaps credentials for `$AUTH_TOKEN` / `{{AUTH_TOKEN}}` variables, so a shared command stays runnable (the recipient fills in their own value) without exposing the real token.
 - Diff — compare two requests (status / query / headers / body)
-- History — IndexedDB persistence; survives reopening DevTools
-- HAR import — load HAR files with response bodies restored inline
+- Export / Import — round-trips both ways. Export to Postman Collection, HAR, session JSON (re-importable), or Markdown docs; import auto-detects HAR, Postman Collection, or session JSON and restores response bodies inline (Markdown is export-only)
+- Standalone viewer — click the toolbar icon to open a full-tab viewer that imports and analyzes HAR/session files without DevTools (live capture stays in the DevTools panel)
 - Endpoint docs — auto-generate Markdown documentation
 - JSON tree view — collapsible tree for request/response bodies
 - Minimal permissions — only `storage`; no `webRequest` or host permissions (uses the DevTools API, not network interception)

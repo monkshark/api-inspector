@@ -1,6 +1,18 @@
 import type { CapturedRequest } from '../../../types'
 import { maskHeaders, isSensitiveHeader } from '../../../core/mask'
+import { statusLabel } from '../../../core/status'
+import { statusClass } from '../../../core/filter'
+import { formatBytes, formatDuration } from '../../util'
 import { useInspectorStore } from '../../store/useInspectorStore'
+
+function statusColor(status: number): string {
+  const cls = statusClass(status)
+  if (cls === '2xx') return 'text-emerald-600 dark:text-emerald-400'
+  if (cls === '3xx') return 'text-sky-600 dark:text-sky-400'
+  if (cls === '4xx') return 'text-amber-600 dark:text-amber-400'
+  if (cls === '5xx') return 'text-red-600 dark:text-red-400'
+  return 'text-zinc-400'
+}
 
 function HeaderTable({
   title,
@@ -52,10 +64,18 @@ export default function HeadersTab({ req }: { req: CapturedRequest }) {
 
   return (
     <div className="p-3">
-      <div className="mb-3 break-all font-mono text-xs text-zinc-500">
-        <span className="font-semibold text-zinc-700 dark:text-zinc-300">
+      <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+        <span className="font-mono font-semibold text-zinc-700 dark:text-zinc-300">
           {req.method}
-        </span>{' '}
+        </span>
+        <span className={'font-mono font-semibold ' + statusColor(req.status)}>
+          {statusLabel(req.status, req.statusText)}
+        </span>
+        <span className="text-zinc-400">{formatDuration(req.durationMs)}</span>
+        <span className="text-zinc-400">{formatBytes(req.sizeBytes)}</span>
+        {req.resMime && <span className="text-zinc-400">{req.resMime}</span>}
+      </div>
+      <div className="mb-3 break-all font-mono text-xs text-zinc-500">
         {req.url}
       </div>
       <HeaderTable

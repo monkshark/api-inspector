@@ -7,6 +7,92 @@ export interface ParsedHar {
   resBodies: Record<string, ResBodyEntry>
 }
 
+function headersArray(rec: Record<string, string>) {
+  return Object.entries(rec).map(([name, value]) => ({ name, value }))
+}
+
+function postDataOf(req: CapturedRequest) {
+  const b = req.reqBody
+  if (b.kind === 'json') return { mimeType: 'application/json', text: b.raw }
+  if (b.kind === 'text') return { mimeType: 'text/plain', text: b.raw }
+  if (b.kind === 'form')
+    return {
+      mimeType: 'application/x-www-form-urlencoded',
+      text: b.pairs
+        .map(
+          ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
+        )
+        .join('&'),
+      params: b.pairs.map(([name, value]) => ({ name, value })),
+    }
+  if (b.kind === 'multipart')
+    return {
+      mimeType: 'multipart/form-data',
+      params: b.parts.map((p) => ({ name: p.name, fileName: p.filename })),
+    }
+  return undefined
+}
+
+function toIso(epochMs: number): string {
+  const d = new Date(epochMs)
+  return Number.isNaN(d.getTime()) ? new Date(0).toISOString() : d.toISOString()
+}
+
+export function buildHar(
+  requests: CapturedRequest[],
+  resBodies: Record<string, ResBodyEntry>,
+): string {
+  const entries = requests.map((req) => {
+    const postData = postDataOf(req)
+    const body = resBodies[req.id]?.body
+    return {
+      startedDateTime: toIso(req.startedAt),
+      time: req.durationMs,
+      _resourceType: req.type,
+      request: {
+        method: req.method,
+        url: req.url,
+        httpVersion: 'HTTP/1.1',
+        headers: headersArray(req.reqHeaders),
+        queryString: req.query.map(([name, value]) => ({ name, value })),
+        cookies: [],
+        headersSize: -1,
+        bodySize: -1,
+        ...(postData ? { postData } : {}),
+      },
+      response: {
+        status: req.status,
+        statusText: req.statusText,
+        httpVersion: 'HTTP/1.1',
+        headers: headersArray(req.resHeaders),
+        cookies: [],
+        content: {
+          size: req.sizeBytes,
+          mimeType: req.resMime ?? '',
+          ...(body != null ? { text: body } : {}),
+        },
+        redirectURL: '',
+        headersSize: -1,
+        bodySize: -1,
+      },
+      cache: {},
+      timings: { send: -1, wait: req.durationMs, receive: -1 },
+    }
+  })
+
+  return JSON.stringify(
+    {
+      log: {
+        version: '1.2',
+        creator: { name: 'API Inspector', version: '1.0.0' },
+        entries,
+      },
+    },
+    null,
+    2,
+  )
+}
+
 interface HarContent {
   size?: number
   mimeType?: string

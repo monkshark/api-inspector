@@ -15,12 +15,21 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: 'convert', label: 'Convert' },
 ]
 
-export default function DetailPanel({ req }: { req: CapturedRequest }) {
+export default function DetailPanel({
+  req,
+  width,
+}: {
+  req: CapturedRequest
+  width: number
+}) {
   const [tab, setTab] = useState<TabKey>('headers')
   const select = useInspectorStore((s) => s.select)
 
   return (
-    <div className="flex w-[28rem] min-w-0 flex-col bg-white dark:bg-zinc-900">
+    <div
+      style={{ width }}
+      className="flex min-w-0 shrink-0 flex-col bg-white dark:bg-zinc-900"
+    >
       <div className="flex items-center gap-1 border-b border-zinc-200 bg-zinc-100 px-2 py-1 dark:border-zinc-700 dark:bg-zinc-800">
         {TABS.map((t) => (
           <button

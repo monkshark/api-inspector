@@ -1,11 +1,13 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useInspectorStore } from '../store/useInspectorStore'
 import { applyFilter } from '../../core/filter'
 import { convert } from '../../core/convert'
 import { maskText } from '../../core/mask'
+import { shareOptions } from '../share'
 import { getRaw } from '../rawEntries'
 import { copyText } from '../util'
+import { isDevtools } from '../env'
 import RequestRow from './RequestRow'
 import ContextMenu, { type MenuItem } from './ContextMenu'
 import type { CapturedRequest } from '../../types'
@@ -17,6 +19,17 @@ interface MenuState {
 }
 
 function EmptyState() {
+  if (!isDevtools) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+        <p className="text-sm text-zinc-500">표시할 요청이 없습니다.</p>
+        <p className="max-w-xs text-xs text-zinc-400">
+          상단의 📂 import로 HAR 또는 세션 JSON을 열거나, 사이트에서 DevTools
+          패널로 캡처한 기록이 여기에 표시됩니다.
+        </p>
+      </div>
+    )
+  }
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
       <p className="text-sm text-zinc-500">아직 수집된 요청이 없습니다.</p>
@@ -39,22 +52,75 @@ export default function RequestList() {
   const requests = useInspectorStore((s) => s.requests)
   const filter = useInspectorStore((s) => s.filter)
   const resBodies = useInspectorStore((s) => s.resBodies)
-  const selectedId = useInspectorStore((s) => s.selectedId)
+  const selectedIds = useInspectorStore((s) => s.selectedIds)
   const select = useInspectorStore((s) => s.select)
+  const setSelection = useInspectorStore((s) => s.setSelection)
   const maskEnabled = useInspectorStore((s) => s.maskEnabled)
   const maskKeys = useInspectorStore((s) => s.maskKeys)
-  const placeholderMode = useInspectorStore((s) => s.placeholderMode)
+  const safeShare = useInspectorStore((s) => s.safeShare)
   const diffBaseId = useInspectorStore((s) => s.diffBaseId)
   const setDiffBase = useInspectorStore((s) => s.setDiffBase)
   const setDiffCompare = useInspectorStore((s) => s.setDiffCompare)
 
   const [menu, setMenu] = useState<MenuState | null>(null)
   const parentRef = useRef<HTMLDivElement>(null)
+  const anchorRef = useRef<string | null>(null)
 
   const filtered = useMemo(
     () => applyFilter(requests, filter, resBodies),
     [requests, filter, resBodies],
   )
+
+  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds])
+
+  const onRowClick = (e: React.MouseEvent, id: string, index: number) => {
+    const current = useInspectorStore.getState().selectedIds
+    if (e.shiftKey && anchorRef.current) {
+      const anchorIndex = filtered.findIndex((r) => r.id === anchorRef.current)
+      if (anchorIndex !== -1) {
+        const [a, b] =
+          anchorIndex < index ? [anchorIndex, index] : [index, anchorIndex]
+        setSelection(
+          filtered.slice(a, b + 1).map((r) => r.id),
+          id,
+        )
+        window.getSelection?.()?.removeAllRanges()
+        return
+      }
+    }
+    if (e.ctrlKey || e.metaKey) {
+      const has = current.includes(id)
+      const next = has ? current.filter((x) => x !== id) : [...current, id]
+      setSelection(next, has ? (next[next.length - 1] ?? null) : id)
+      anchorRef.current = id
+      return
+    }
+    if (current.length === 1 && current[0] === id) {
+      select(null)
+      anchorRef.current = null
+      return
+    }
+    select(id)
+    anchorRef.current = id
+  }
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || (e.key !== 'c' && e.key !== 'C')) return
+      if (window.getSelection?.()?.toString()) return
+      const ids = new Set(useInspectorStore.getState().selectedIds)
+      if (ids.size === 0) return
+      const text = filtered
+        .filter((r) => ids.has(r.id))
+        .map((r) => `${r.method} ${r.url}`)
+        .join('\n')
+      if (!text) return
+      e.preventDefault()
+      void copyText(text)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [filtered])
 
   const virtualizer = useVirtualizer({
     count: filtered.length,
@@ -69,11 +135,7 @@ export default function RequestList() {
           label: 'Copy as cURL',
           onClick: () =>
             void copyText(
-              convert(menu.req, 'curl', {
-                mask: maskEnabled,
-                maskKeys,
-                placeholders: placeholderMode,
-              }),
+              convert(menu.req, 'curl', shareOptions(safeShare, maskKeys)),
             ),
         },
         { label: 'Copy URL', onClick: () => void copyText(menu.req.url) },
@@ -108,10 +170,10 @@ export default function RequestList() {
 
   return (
     <div className="flex min-w-0 flex-1 flex-col border-r border-zinc-200 dark:border-zinc-700">
-      <div className="grid grid-cols-[3rem_1fr_3rem_4rem_4rem_4rem] gap-2 border-b border-zinc-200 bg-zinc-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800">
+      <div className="grid grid-cols-[3rem_1fr_7rem_4rem_4rem_4rem] gap-2 border-b border-zinc-200 bg-zinc-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800">
         <span>Mtd</span>
         <span>Path</span>
-        <span className="text-right">St</span>
+        <span>Status</span>
         <span className="text-right">Type</span>
         <span className="text-right">Time</span>
         <span className="text-right">Size</span>
@@ -135,11 +197,11 @@ export default function RequestList() {
               >
                 <RequestRow
                   req={req}
-                  selected={req.id === selectedId}
-                  onSelect={() => select(req.id)}
+                  selected={selectedSet.has(req.id)}
+                  onSelect={(e) => onRowClick(e, req.id, vi.index)}
                   onContextMenu={(e) => {
                     e.preventDefault()
-                    select(req.id)
+                    if (!selectedSet.has(req.id)) select(req.id)
                     setMenu({ x: e.clientX, y: e.clientY, req })
                   }}
                 />

@@ -1,7 +1,8 @@
 import { useRef } from 'react'
 import { useInspectorStore } from '../store/useInspectorStore'
 import { isValidRegex } from '../../core/filter'
-import { parseHar } from '../../core/har'
+import { parseImport } from '../../core/session'
+import { isDevtools } from '../env'
 import ExportMenu from './ExportMenu'
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
@@ -56,10 +57,10 @@ export default function FilterBar() {
     const file = e.target.files?.[0]
     if (!file) return
     try {
-      const { requests, resBodies } = parseHar(await file.text(), Date.now())
+      const { requests, resBodies } = parseImport(await file.text(), Date.now())
       importEntries(requests, resBodies)
     } catch (err) {
-      window.alert(`HAR 가져오기 실패: ${(err as Error).message}`)
+      window.alert(`가져오기 실패: ${(err as Error).message}`)
     }
     e.target.value = ''
   }
@@ -130,23 +131,25 @@ export default function FilterBar() {
         <input
           ref={fileRef}
           type="file"
-          accept=".har,application/json"
+          accept=".har,.json,application/json"
           onChange={onFile}
           className="hidden"
         />
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="rounded bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-300"
+          className="rounded bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
         >
           📂 import
         </button>
         <Toggle active={maskEnabled} onClick={toggleMask} title="민감 헤더 마스킹">
           {maskEnabled ? '● mask' : '○ mask'}
         </Toggle>
-        <Toggle active={paused} onClick={togglePaused} title="수집 일시정지">
-          {paused ? '▶ resume' : '⏸ pause'}
-        </Toggle>
+        {isDevtools && (
+          <Toggle active={paused} onClick={togglePaused} title="수집 일시정지">
+            {paused ? '▶ resume' : '⏸ pause'}
+          </Toggle>
+        )}
         <ExportMenu />
         <button
           type="button"

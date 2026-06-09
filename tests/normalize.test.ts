@@ -36,6 +36,16 @@ describe('headersToRecord', () => {
   it('getHeader is case-insensitive', () => {
     expect(getHeader({ 'Content-Type': 'x' }, 'content-type')).toBe('x')
   })
+  it('drops HTTP/2 pseudo-headers', () => {
+    const out = headersToRecord([
+      { name: ':authority', value: 'github.com' },
+      { name: ':method', value: 'GET' },
+      { name: 'accept', value: 'application/json' },
+    ])
+    expect(out[':authority']).toBeUndefined()
+    expect(out[':method']).toBeUndefined()
+    expect(out['accept']).toBe('application/json')
+  })
 })
 
 describe('normalize', () => {

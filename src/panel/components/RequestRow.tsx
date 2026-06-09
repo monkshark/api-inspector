@@ -1,5 +1,6 @@
 import type { CapturedRequest } from '../../types'
 import { statusClass } from '../../core/filter'
+import { statusLabel } from '../../core/status'
 import { formatBytes, formatDuration } from '../util'
 
 function statusColor(status: number): string {
@@ -19,7 +20,7 @@ export default function RequestRow({
 }: {
   req: CapturedRequest
   selected: boolean
-  onSelect: () => void
+  onSelect: (e: React.MouseEvent) => void
   onContextMenu: (e: React.MouseEvent) => void
 }) {
   const highlight = req.status === 401 || req.status === 403
@@ -29,7 +30,7 @@ export default function RequestRow({
       onClick={onSelect}
       onContextMenu={onContextMenu}
       className={
-        'grid cursor-default grid-cols-[3rem_1fr_3rem_4rem_4rem_4rem] items-center gap-2 border-b border-zinc-100 px-2 py-1 text-xs dark:border-zinc-800 ' +
+        'grid cursor-default select-none grid-cols-[3rem_1fr_7rem_4rem_4rem_4rem] items-center gap-2 border-b border-zinc-100 px-2 py-1 text-xs dark:border-zinc-800 ' +
         (selected
           ? 'bg-indigo-50 dark:bg-indigo-950/40 '
           : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50 ') +
@@ -40,8 +41,11 @@ export default function RequestRow({
       <span className="truncate font-mono text-zinc-800 dark:text-zinc-200" title={req.url}>
         {req.path}
       </span>
-      <span className={'text-right font-mono ' + statusColor(req.status)}>
-        {req.status || '—'}
+      <span
+        className={'truncate font-mono ' + statusColor(req.status)}
+        title={statusLabel(req.status, req.statusText)}
+      >
+        {req.status ? statusLabel(req.status, req.statusText) : '—'}
       </span>
       <span className="truncate text-right text-zinc-400">{req.type}</span>
       <span className="text-right text-zinc-400">{formatDuration(req.durationMs)}</span>

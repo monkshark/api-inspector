@@ -6,7 +6,7 @@ English: [README.md](./README.md)
 
 > DevTools Network 탭의 "Copy as cURL"을 정리·필터·변환·보안 마스킹으로 강화한 도구.
 
-## 어디에 쓰나
+## 사용처
 
 웹 페이지가 백그라운드에서 주고받는 API 요청(XHR/fetch)을 개발자가 빠르게 들여다보고, 정리하고, 남에게 전달하기 위한 도구. 브라우저 기본 DevTools의 Network 탭은 요청을 보여주긴 하지만 검색·정리·변환·공유·문서화가 약함. 이 확장은 그 빈틈을 메움.
 
@@ -26,6 +26,36 @@ English: [README.md](./README.md)
 
 핵심 차별점은 (1) 토큰 자동 마스킹으로 안전한 공유, (2) 정규식·본문 전문 검색, (3) cURL/HTTPie/Postman 변환과 엔드포인트 문서 자동 생성, (4) HAR import로 남이 보낸 트래픽도 같은 화면에서 분석, (5) 네트워크 가로채기 권한 없이 DevTools API만 사용하는 최소권한 설계.
 
+## 예시: 실패한 요청을 백엔드 개발자에게 넘기기
+
+프론트에서 403이 떴고, 백엔드 개발자에게 재현을 요청해야 하는 상황.
+
+1. F12 → API Inspector에서 요청 재현
+2. 요청 선택 → Convert 탭. `mask` 켜고 `$ placeholder` 켜기
+3. 출력을 복사해 슬랙/티켓에 붙임:
+
+```bash
+curl 'https://api.company.com/orders/123' \
+  -X POST \
+  -H "Authorization: Bearer $AUTH_TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data-raw '{"qty":2}'
+```
+
+진짜 토큰이 들어있지 않아 유출이 없음. 받는 사람은 자기 자격증명만 채워 그대로 실행:
+
+```bash
+export AUTH_TOKEN="자기-토큰"
+# 위 curl 붙여넣기
+```
+
+모드 선택:
+
+- 혼자 디버깅 (원본 값 필요) — mask off
+- 받는 사람이 실행도 해야 함 — mask on + placeholder on
+- 구조만 공유 (실행 X) — mask on, placeholder off (`***MASKED***`)
+- Postman 협업 (팀이 토큰을 변수로 관리) — placeholder on → `{{AUTH_TOKEN}}`
+
 ## 특징
 
 - DevTools 패널 — F12 안에 "API Inspector" 탭으로 통합
@@ -33,8 +63,8 @@ English: [README.md](./README.md)
 - 자동 마스킹 — `Authorization` / `Cookie` / `*-token` / 쿼리 토큰을 변환·표시 시 가림
 - 변환 — cURL(멀티라인, multipart/form 지원) · HTTPie · Postman Collection. 플레이스홀더 모드를 켜면 자격증명을 `$AUTH_TOKEN` / `{{AUTH_TOKEN}}` 변수 자리로 출력 → 진짜 토큰 노출 없이도 받는 사람이 자기 값만 채우면 바로 실행 가능.
 - diff — 두 요청 비교(status / query / 헤더 / 본문)
-- 히스토리 — IndexedDB 영속, DevTools 재오픈 후에도 유지
-- HAR import — HAR 파일을 불러와 응답 본문까지 인라인 복원
+- export / import 양방향 — export: Postman Collection / HAR / 세션 JSON(재import 가능) / 마크다운 문서. import: HAR · Postman Collection · 세션 JSON을 자동 인식해서 불러오고 응답 본문까지 인라인 복원 (마크다운은 export 전용)
+- 독립 뷰어 — 툴바 아이콘을 누르면 새 탭에 뷰어가 열림. DevTools 없이 HAR/세션 파일을 import해서 분석 가능 (실시간 캡처는 DevTools 패널 담당)
 - 엔드포인트 문서화 — 마크다운 문서 자동 생성
 - JSON 트리뷰 — 요청/응답 본문을 접이식 트리로
 - 최소권한 — `storage` 외 권한 없음. `webRequest` / host 권한 불필요 (네트워크 가로채기 없이 DevTools API만 사용)

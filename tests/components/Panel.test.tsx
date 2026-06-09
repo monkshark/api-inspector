@@ -18,13 +18,13 @@ beforeEach(() => {
   useInspectorStore.setState({
     requests: [],
     selectedId: null,
+    selectedIds: [],
     paused: false,
     maskEnabled: true,
     filter: EMPTY_FILTER,
     resBodies: {},
     diffBaseId: null,
     diffCompareId: null,
-    hydrated: true,
   })
 })
 
@@ -134,5 +134,32 @@ describe('panel response body', () => {
     await waitFor(() =>
       expect(screen.getByText(/"id": 99/)).toBeInTheDocument(),
     )
+  })
+})
+
+describe('panel multi-select', () => {
+  it('shift+click selects a range and Ctrl+C copies the titles', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      configurable: true,
+    })
+
+    render(<App />)
+    act(() => {
+      emitRequest(entry({ url: 'https://api.example.com/a' }))
+      emitRequest(entry({ url: 'https://api.example.com/b' }))
+      emitRequest(entry({ url: 'https://api.example.com/c' }))
+    })
+
+    fireEvent.click(screen.getByText('/a'))
+    fireEvent.click(screen.getByText('/c'), { shiftKey: true })
+    fireEvent.keyDown(window, { key: 'c', ctrlKey: true })
+
+    await waitFor(() => expect(writeText).toHaveBeenCalled())
+    const copied = writeText.mock.calls[0][0] as string
+    expect(copied.split('\n')).toHaveLength(3)
+    expect(copied).toContain('https://api.example.com/a')
+    expect(copied).toContain('https://api.example.com/c')
   })
 })
