@@ -2,6 +2,8 @@
 
 # API Inspector
 
+![API Inspector](./img.png)
+
 A Chromium DevTools panel extension that automatically captures a page's API calls, then lets you filter them, mask secrets, and convert them to cURL / HTTPie. Local-only, with no network-interception permission.
 
 > Think of it as the DevTools Network tab's "Copy as cURL" — supercharged with search, masking, conversion, diffing, history, and export.
