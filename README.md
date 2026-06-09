@@ -2,7 +2,7 @@
 
 # API Inspector
 
-![API Inspector](./img.png)
+<p align="center"><img src="./icons/icon-128.png" width="120" alt="API Inspector" /></p>
 
 A Chromium DevTools panel extension that automatically captures a page's API calls, then lets you filter them, mask secrets, and convert them to cURL / HTTPie. Local-only, with no network-interception permission.
 

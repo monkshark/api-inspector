@@ -2,7 +2,7 @@ English: [README.md](./README.md)
 
 # API Inspector
 
-![API Inspector](./img.png)
+<p align="center"><img src="./icons/icon-128.png" width="120" alt="API Inspector" /></p>
 
 페이지가 호출하는 API를 DevTools 패널에서 자동 수집하고, 필터링·민감정보 마스킹 후 cURL / HTTPie로 변환·복사하는 Chromium 확장프로그램.
 
