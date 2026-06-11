@@ -133,3 +133,7 @@ src/
 │  └─ convert/    cURL · HTTPie conversion
 └─ types.ts
 ```
+
+## License
+
+[MIT](./LICENSE) © 2026 Huido Choo
