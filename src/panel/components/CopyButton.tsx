@@ -4,7 +4,7 @@ import { copyText } from '../util'
 export default function CopyButton({
   text,
   className,
-  label = '복사',
+  label = 'copy',
 }: {
   text: string
   className?: string
@@ -20,7 +20,7 @@ export default function CopyButton({
   }
   return (
     <button type="button" onClick={onClick} className={className}>
-      {done ? '복사완료' : label}
+      {done ? 'copied' : label}
     </button>
   )
 }

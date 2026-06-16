@@ -35,7 +35,7 @@ export function parseImport(jsonText: string, now: number): ParsedHar {
   try {
     data = JSON.parse(jsonText)
   } catch {
-    throw new Error('유효한 JSON이 아닙니다.')
+    throw new Error('Not valid JSON.')
   }
   if (isSessionBundle(data)) {
     return { requests: data.requests, resBodies: data.resBodies ?? {} }

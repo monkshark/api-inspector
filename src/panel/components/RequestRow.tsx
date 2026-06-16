@@ -5,11 +5,11 @@ import { formatBytes, formatDuration } from '../util'
 
 function statusColor(status: number): string {
   const cls = statusClass(status)
-  if (cls === '2xx') return 'text-emerald-600 dark:text-emerald-400'
-  if (cls === '3xx') return 'text-sky-600 dark:text-sky-400'
-  if (cls === '4xx') return 'text-amber-600 dark:text-amber-400'
-  if (cls === '5xx') return 'text-red-600 dark:text-red-400'
-  return 'text-zinc-400'
+  if (cls === '2xx') return 'text-grn'
+  if (cls === '3xx') return 'text-sky'
+  if (cls === '4xx') return 'text-amb'
+  if (cls === '5xx') return 'text-red'
+  return 'text-mut'
 }
 
 export default function RequestRow({
@@ -29,27 +29,35 @@ export default function RequestRow({
     <div
       onClick={onSelect}
       onContextMenu={onContextMenu}
+      style={{
+        height: 25,
+        boxShadow: selected ? 'inset 2px 0 0 var(--acc)' : undefined,
+        background: selected
+          ? 'var(--sel)'
+          : highlight
+            ? 'var(--ambg)'
+            : undefined,
+      }}
       className={
-        'grid cursor-default select-none grid-cols-[3rem_1fr_7rem_4rem_4rem_4rem] items-center gap-2 border-b border-zinc-100 px-2 py-1 text-xs dark:border-zinc-800 ' +
-        (selected
-          ? 'bg-indigo-50 dark:bg-indigo-950/40 '
-          : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50 ') +
-        (highlight && !selected ? 'bg-amber-50/60 dark:bg-amber-950/20' : '')
+        'grid cursor-default select-none grid-cols-[3rem_1fr_7rem_4rem_4rem_4rem] items-center gap-2 border-b border-bd px-2.5 text-[12px] ' +
+        (selected ? '' : 'hover:bg-[var(--hov)]')
       }
     >
-      <span className="font-mono font-semibold text-zinc-500">{req.method}</span>
-      <span className="truncate font-mono text-zinc-800 dark:text-zinc-200" title={req.url}>
+      <span className={'font-bold ' + (selected ? 'text-tx' : 'text-mut')}>
+        {req.method}
+      </span>
+      <span className="truncate text-tx" title={req.url}>
         {req.path}
       </span>
       <span
-        className={'truncate font-mono ' + statusColor(req.status)}
+        className={'truncate ' + statusColor(req.status)}
         title={statusLabel(req.status, req.statusText)}
       >
         {req.status ? statusLabel(req.status, req.statusText) : '—'}
       </span>
-      <span className="truncate text-right text-zinc-400">{req.type}</span>
-      <span className="text-right text-zinc-400">{formatDuration(req.durationMs)}</span>
-      <span className="text-right text-zinc-400">{formatBytes(req.sizeBytes)}</span>
+      <span className="truncate text-right text-mut">{req.type}</span>
+      <span className="text-right text-mut">{formatDuration(req.durationMs)}</span>
+      <span className="text-right text-mut">{formatBytes(req.sizeBytes)}</span>
     </div>
   )
 }

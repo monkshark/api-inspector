@@ -16,21 +16,21 @@ export default function StatusBar() {
   )
 
   return (
-    <div className="flex items-center gap-3 border-t border-zinc-200 bg-zinc-100 px-3 py-1 text-[11px] text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800">
+    <div className="flex items-center gap-2 border-t border-bd bg-panel px-3 text-[11px] text-mut" style={{ height: 26 }}>
       <span>
-        {shown} / {requests.length}건
+        {shown} / {requests.length}
       </span>
       <span>·</span>
-      <span className={maskEnabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-500'}>
-        마스킹 {maskEnabled ? 'ON' : 'OFF'}
+      <span className={maskEnabled ? 'text-grn' : 'text-amb'}>
+        masking {maskEnabled ? 'ON' : 'OFF'}
       </span>
       {paused && (
         <>
           <span>·</span>
-          <span className="text-amber-500">일시정지</span>
+          <span className="text-amb">paused</span>
         </>
       )}
-      <span className="ml-auto">상한 {maxEntries}</span>
+      <span className="ml-auto">cap {maxEntries}</span>
     </div>
   )
 }

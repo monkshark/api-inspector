@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
 const INP =
-  'rounded border border-zinc-300 bg-white px-1 py-0.5 font-mono text-xs outline-none dark:border-zinc-600 dark:bg-zinc-950'
+  'rounded-md border border-bd bg-bg px-1 py-0.5 font-mono text-[11.5px] text-tx outline-none'
 const SEL =
-  'rounded border border-zinc-300 bg-white px-0.5 py-0.5 text-[10px] text-zinc-500 outline-none dark:border-zinc-600 dark:bg-zinc-950'
+  'rounded-md border border-bd bg-bg px-0.5 py-0.5 text-[10px] text-mut outline-none'
 
 type JsonType = 'string' | 'number' | 'boolean' | 'null' | 'object' | 'array'
 const TYPES: JsonType[] = ['string', 'number', 'boolean', 'null', 'object', 'array']
@@ -72,7 +72,7 @@ function TypeSelect({
       value={typeOf(value)}
       onChange={(e) => onChange(convertTo(value, e.target.value as JsonType))}
       className={SEL}
-      title="타입"
+      title="Type"
     >
       {TYPES.map((t) => (
         <option key={t} value={t}>
@@ -91,7 +91,7 @@ function ScalarInput({
   onChange: (v: unknown) => void
 }) {
   if (value === null) {
-    return <span className="flex-1 font-mono text-xs text-zinc-400">null</span>
+    return <span className="flex-1 font-mono text-[11.5px] text-jlit">null</span>
   }
   return (
     <input
@@ -129,7 +129,7 @@ function Row({
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
-            className="w-4 shrink-0 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+            className="w-4 shrink-0 text-mut hover:text-tx"
           >
             {open ? '▾' : '▸'}
           </button>
@@ -141,19 +141,19 @@ function Row({
           <input
             value={keyName}
             onChange={(e) => onRenameKey?.(e.target.value)}
-            className={INP + ' w-28 text-violet-600 dark:text-violet-400'}
+            className={INP + ' w-28 text-jkey'}
           />
         ) : (
-          <span className="w-6 text-right font-mono text-xs text-zinc-400">
+          <span className="w-6 text-right font-mono text-[11.5px] text-mut">
             {label}
           </span>
         )}
-        <span className="text-zinc-400">:</span>
+        <span className="text-mut">:</span>
         {composite ? (
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
-            className="font-mono text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+            className="font-mono text-[11.5px] text-mut hover:text-tx"
           >
             {summary(value)}
           </button>
@@ -163,14 +163,14 @@ function Row({
         <button
           type="button"
           onClick={onRemove}
-          title="삭제"
-          className="ml-auto rounded px-1 text-zinc-400 opacity-0 transition hover:bg-zinc-200 group-hover:opacity-100 dark:hover:bg-zinc-700"
+          title="Remove"
+          className="ml-auto rounded-md px-1 text-mut opacity-0 transition hover:bg-[var(--hov)] group-hover:opacity-100"
         >
           ×
         </button>
       </div>
       {composite && open && (
-        <div className="ml-2 border-l border-zinc-200 pl-2 dark:border-zinc-700">
+        <div className="ml-2 border-l border-bd pl-2">
           <Node value={value} onChange={onChange} depth={depth + 1} />
         </div>
       )}
@@ -183,7 +183,7 @@ function AddButton({ onClick, label }: { onClick: () => void; label: string }) {
     <button
       type="button"
       onClick={onClick}
-      className="ml-5 text-[11px] text-indigo-500 hover:underline"
+      className="ml-5 text-[11px] text-acc hover:underline"
     >
       {label}
     </button>
@@ -212,7 +212,7 @@ function Node({
             depth={depth}
           />
         ))}
-        <AddButton onClick={() => onChange([...value, ''])} label="+ 항목" />
+        <AddButton onClick={() => onChange([...value, ''])} label="+ item" />
       </div>
     )
   }
@@ -240,7 +240,7 @@ function Node({
             depth={depth}
           />
         ))}
-        <AddButton onClick={() => onChange({ ...obj, '': '' })} label="+ 필드" />
+        <AddButton onClick={() => onChange({ ...obj, '': '' })} label="+ field" />
       </div>
     )
   }

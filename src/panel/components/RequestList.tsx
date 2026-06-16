@@ -21,28 +21,28 @@ interface MenuState {
 function EmptyState() {
   if (!isDevtools) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-        <p className="text-sm text-zinc-500">표시할 요청이 없습니다.</p>
-        <p className="max-w-xs text-xs text-zinc-400">
-          상단의 📂 import로 HAR 또는 세션 JSON을 열거나, 사이트에서 DevTools
-          패널로 캡처한 기록이 여기에 표시됩니다.
+      <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
+        <p className="text-[11px] text-tx">No requests to show.</p>
+        <p className="max-w-xs text-[10.5px] leading-relaxed text-mut">
+          Use 📂 import above to open a HAR or session JSON, or requests captured
+          with the DevTools panel will appear here.
         </p>
       </div>
     )
   }
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-      <p className="text-sm text-zinc-500">아직 수집된 요청이 없습니다.</p>
-      <p className="max-w-xs text-xs text-zinc-400">
-        DevTools가 열린 상태에서 발생한 요청만 잡힙니다. 아래 버튼으로 페이지를
-        새로고침하세요.
+    <div className="flex h-full flex-col items-center justify-center gap-2.5 p-6 text-center">
+      <p className="text-[11px] text-tx">No requests captured yet.</p>
+      <p className="max-w-xs text-[10.5px] leading-relaxed text-mut">
+        Only requests made while DevTools is open are captured. Use the button
+        below to reload the page.
       </p>
       <button
         type="button"
         onClick={() => chrome.devtools.inspectedWindow.reload({})}
-        className="rounded bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500"
+        className="mt-1 flex h-6 items-center rounded-md bg-acc px-[11px] text-[11px] text-white"
       >
-        ↻ 페이지 새로고침
+        ↻ Reload page
       </button>
     </div>
   )
@@ -148,11 +148,11 @@ export default function RequestList() {
             )
           },
         },
-        { label: 'Diff 기준으로 설정', onClick: () => setDiffBase(menu.req.id) },
+        { label: 'Set as diff base', onClick: () => setDiffBase(menu.req.id) },
         ...(diffBaseId && diffBaseId !== menu.req.id
           ? [
               {
-                label: '기준과 비교 (diff)',
+                label: 'Compare with base (diff)',
                 onClick: () => setDiffCompare(menu.req.id),
               },
             ]
@@ -162,15 +162,15 @@ export default function RequestList() {
 
   if (requests.length === 0) {
     return (
-      <div className="min-w-0 flex-1 border-r border-zinc-200 dark:border-zinc-700">
+      <div className="min-w-0 flex-1 border-r border-bd">
         <EmptyState />
       </div>
     )
   }
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col border-r border-zinc-200 dark:border-zinc-700">
-      <div className="grid grid-cols-[3rem_1fr_7rem_4rem_4rem_4rem] gap-2 border-b border-zinc-200 bg-zinc-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800">
+    <div className="flex min-w-0 flex-1 flex-col border-r border-bd">
+      <div className="grid grid-cols-[3rem_1fr_7rem_4rem_4rem_4rem] items-center gap-2 border-b border-bd bg-panel px-2.5 text-[10px] uppercase tracking-wide text-mut" style={{ height: 26 }}>
         <span>Mtd</span>
         <span>Path</span>
         <span>Status</span>

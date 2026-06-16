@@ -71,51 +71,55 @@ export default function ExportMenu() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         disabled={requests.length === 0}
-        className="rounded bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600 enabled:hover:bg-zinc-300 disabled:opacity-40 dark:bg-zinc-700 dark:text-zinc-300 dark:enabled:hover:bg-zinc-600"
+        className="flex h-[22px] items-center gap-1 rounded-md border border-bd bg-bg px-2 text-[11px] text-mut disabled:opacity-40"
       >
         ⬇ export
       </button>
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-1 min-w-60 overflow-hidden rounded-md border border-zinc-200 bg-white py-1 text-xs shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
-            <div className="flex items-center gap-1 border-b border-zinc-100 px-2 py-1.5 dark:border-zinc-700">
-              <span className="mr-auto text-zinc-400">공유 모드</span>
-              <button
-                type="button"
-                onClick={() => safeShare && toggleSafeShare()}
-                className={
-                  'rounded px-2 py-0.5 font-medium ' +
-                  (!safeShare
-                    ? 'bg-amber-500 text-white'
-                    : 'text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700')
-                }
-              >
-                원본
-              </button>
-              <button
-                type="button"
-                onClick={() => !safeShare && toggleSafeShare()}
-                className={
-                  'rounded px-2 py-0.5 font-medium ' +
-                  (safeShare
-                    ? 'bg-emerald-600 text-white'
-                    : 'text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700')
-                }
-              >
-                안전
-              </button>
+          <div className="absolute right-0 z-50 mt-1 w-60 overflow-hidden rounded-lg border border-bd bg-panel text-[12px] shadow-[0_16px_40px_rgba(0,0,0,0.3)]">
+            <div className="flex items-center gap-2 border-b border-bd px-[11px] py-[9px]">
+              <span className="mr-auto text-[11px] text-mut">share mode</span>
+              <div className="flex gap-0.5">
+                <button
+                  type="button"
+                  onClick={() => safeShare && toggleSafeShare()}
+                  className={
+                    'flex h-5 items-center rounded-[5px] px-2 text-[10px] ' +
+                    (!safeShare
+                      ? 'bg-amb text-white'
+                      : 'bg-[color-mix(in_srgb,var(--mut)_16%,transparent)] text-tx')
+                  }
+                >
+                  Raw
+                </button>
+                <button
+                  type="button"
+                  onClick={() => !safeShare && toggleSafeShare()}
+                  className={
+                    'flex h-5 items-center rounded-[5px] px-2 text-[10px] ' +
+                    (safeShare
+                      ? 'bg-grn text-white'
+                      : 'bg-[color-mix(in_srgb,var(--mut)_16%,transparent)] text-tx')
+                  }
+                >
+                  Safe
+                </button>
+              </div>
             </div>
-            {items.map((item) => (
-              <button
-                key={item.label}
-                type="button"
-                onClick={() => run(item.onClick)}
-                className="block w-full px-3 py-1.5 text-left text-zinc-700 hover:bg-indigo-600 hover:text-white dark:text-zinc-200"
-              >
-                {item.label}
-              </button>
-            ))}
+            <div className="flex flex-col p-1">
+              {items.map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => run(item.onClick)}
+                  className="rounded-md px-[9px] py-[7px] text-left text-tx hover:bg-acc hover:text-white"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </div>
         </>
       )}

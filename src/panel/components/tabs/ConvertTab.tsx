@@ -29,69 +29,70 @@ export default function ConvertTab({ req }: { req: CapturedRequest }) {
 
   return (
     <div className="flex h-full flex-col p-3">
-      <div className="mb-2 flex items-center gap-2">
-        <div className="flex gap-1">
+      <div className="mb-2 flex items-center gap-1.5">
+        <div className="flex gap-[3px]">
           {FORMATS.map((f) => (
             <button
               key={f.key}
               type="button"
               onClick={() => setFormat(f.key)}
               className={
-                'rounded px-2 py-0.5 text-xs font-medium ' +
+                'flex h-[22px] items-center rounded-md px-2 text-[11px] transition ' +
                 (format === f.key
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-zinc-200 text-zinc-600 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-300')
+                  ? 'bg-acc font-medium text-white'
+                  : 'bg-[color-mix(in_srgb,var(--mut)_16%,transparent)] text-tx')
               }
             >
               {f.label}
             </button>
           ))}
         </div>
-        <div className="ml-2 flex overflow-hidden rounded border border-zinc-300 dark:border-zinc-600">
+        <div className="ml-1 flex gap-0.5">
           <button
             type="button"
             onClick={() => safeShare && toggleSafeShare()}
             className={
-              'px-2 py-0.5 text-xs font-medium ' +
+              'flex h-[22px] items-center rounded-md px-2 text-[11px] ' +
               (!safeShare
-                ? 'bg-amber-500 text-white'
-                : 'bg-transparent text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700')
+                ? 'bg-amb font-medium text-white'
+                : 'bg-[color-mix(in_srgb,var(--mut)_16%,transparent)] text-tx')
             }
           >
-            원본
+            Raw
           </button>
           <button
             type="button"
             onClick={() => !safeShare && toggleSafeShare()}
             className={
-              'px-2 py-0.5 text-xs font-medium ' +
+              'flex h-[22px] items-center rounded-md px-2 text-[11px] ' +
               (safeShare
-                ? 'bg-emerald-600 text-white'
-                : 'bg-transparent text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700')
+                ? 'bg-grn font-medium text-white'
+                : 'bg-[color-mix(in_srgb,var(--mut)_16%,transparent)] text-tx')
             }
           >
-            안전
+            Safe
           </button>
         </div>
         <button
           type="button"
           onClick={onCopy}
-          className="ml-auto rounded bg-emerald-600 px-3 py-0.5 text-xs font-medium text-white hover:bg-emerald-500"
+          className="ml-auto flex h-[22px] items-center rounded-md bg-grn px-3 text-[11px] font-medium text-white"
         >
-          {copied ? '복사됨 ✓' : 'Copy'}
+          {copied ? 'copied ✓' : 'copy'}
         </button>
       </div>
       {safeShare ? (
-        <p className="mb-1 text-[11px] text-zinc-400">
-          안전 모드 — 자격증명은 변수 자리($AUTH_TOKEN), PII는 가림. 실행 전 값
-          지정 필요 (예: export AUTH_TOKEN=...)
+        <p className="mb-1 text-[11px] text-mut">
+          Safe mode — credentials become placeholders ($AUTH_TOKEN), PII is
+          masked. Set the values before running (e.g. export AUTH_TOKEN=...).
         </p>
       ) : (
-        <p className="mb-1 text-[11px] text-amber-500">
-          원본 모드 — 실제 토큰·쿠키가 그대로 포함됨. 공유 금지, 로컬 실행용.
+        <p className="mb-1 text-[11px] text-amb">
+          Raw mode — real tokens and cookies are included as-is. Do not share;
+          for local use only.
         </p>
       )}
-      <pre className="min-h-0 flex-1 overflow-auto rounded border border-zinc-200 bg-zinc-50 p-2 font-mono text-xs leading-5 text-zinc-800 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200">
+      <pre className="min-h-0 flex-1 overflow-auto rounded-lg border border-bd bg-panel p-2.5 font-mono text-[11.5px] leading-5 text-tx">
         {output}
       </pre>
     </div>

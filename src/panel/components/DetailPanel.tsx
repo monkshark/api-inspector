@@ -8,8 +8,16 @@ import QueryTab from './tabs/QueryTab'
 import ConvertTab from './tabs/ConvertTab'
 import ResendTab from './tabs/ResendTab'
 import FuzzTab from './tabs/FuzzTab'
+import TamperTab from './tabs/TamperTab'
 
-type TabKey = 'headers' | 'body' | 'query' | 'convert' | 'resend' | 'fuzz'
+type TabKey =
+  | 'headers'
+  | 'body'
+  | 'query'
+  | 'convert'
+  | 'resend'
+  | 'fuzz'
+  | 'tamper'
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'headers', label: 'Headers' },
@@ -20,6 +28,7 @@ const TABS: { key: TabKey; label: string }[] = [
     ? [
         { key: 'resend' as const, label: 'Edit/Send' },
         { key: 'fuzz' as const, label: 'Fuzz' },
+        { key: 'tamper' as const, label: 'Tamper' },
       ]
     : []),
 ]
@@ -37,19 +46,19 @@ export default function DetailPanel({
   return (
     <div
       style={{ width }}
-      className="flex min-w-0 shrink-0 flex-col bg-white dark:bg-zinc-900"
+      className="flex min-w-0 shrink-0 flex-col bg-bg"
     >
-      <div className="flex items-center gap-1 border-b border-zinc-200 bg-zinc-100 px-2 py-1 dark:border-zinc-700 dark:bg-zinc-800">
+      <div className="flex items-center gap-0.5 border-b border-bd bg-panel px-2" style={{ height: 34 }}>
         {TABS.map((t) => (
           <button
             key={t.key}
             type="button"
             onClick={() => setTab(t.key)}
             className={
-              'rounded px-2 py-0.5 text-xs font-medium ' +
+              'flex h-6 items-center rounded-md px-[11px] text-[11px] ' +
               (tab === t.key
-                ? 'bg-white text-indigo-600 shadow-sm dark:bg-zinc-900 dark:text-indigo-400'
-                : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200')
+                ? 'bg-bg font-medium text-acc shadow-sm'
+                : 'text-mut')
             }
           >
             {t.label}
@@ -58,8 +67,8 @@ export default function DetailPanel({
         <button
           type="button"
           onClick={() => select(null)}
-          className="ml-auto rounded px-1.5 py-0.5 text-xs text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
-          title="닫기"
+          className="ml-auto px-1.5 text-[13px] text-mut"
+          title="Close"
         >
           ✕
         </button>
@@ -71,6 +80,7 @@ export default function DetailPanel({
         {tab === 'convert' && <ConvertTab req={req} />}
         {tab === 'resend' && <ResendTab req={req} />}
         {tab === 'fuzz' && <FuzzTab req={req} />}
+        {tab === 'tamper' && <TamperTab req={req} />}
       </div>
     </div>
   )

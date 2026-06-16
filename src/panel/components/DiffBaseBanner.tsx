@@ -8,17 +8,20 @@ export default function DiffBaseBanner() {
   const setDiffBase = useInspectorStore((s) => s.setDiffBase)
   if (!diffBaseId || !base) return null
   return (
-    <div className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-3 py-1 text-[11px] text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
+    <div className="flex items-center gap-2 border-[#e6cf8a] bg-[#fff8e6] px-3 py-[7px] text-[11.5px] text-[#9a6700] dark:border-[#4a3c14] dark:bg-[#2b2410] dark:text-[#e3b341]">
       <span>
-        diff 기준: <span className="font-mono">{base.method} {base.path}</span> —
-        다른 요청을 우클릭해 "기준과 비교"를 선택하세요.
+        diff base:{' '}
+        <span className="font-medium text-[#6e4a00] dark:font-normal dark:text-[#f0d68a]">
+          {base.method} {base.path}
+        </span>{' '}
+        — right-click another request and choose "Compare with base".
       </span>
       <button
         type="button"
         onClick={() => setDiffBase(null)}
-        className="ml-auto rounded px-1.5 hover:bg-amber-200 dark:hover:bg-amber-900"
+        className="ml-auto flex h-[22px] items-center rounded-md border border-[#e6cf8a] px-2.5 text-[11px] dark:border-[#6b561c]"
       >
-        해제
+        clear
       </button>
     </div>
   )

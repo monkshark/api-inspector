@@ -108,7 +108,7 @@ function getEntries(data: unknown): unknown[] {
       if (Array.isArray(entries)) return entries
     }
   }
-  throw new Error('HAR 형식이 아닙니다 (log.entries 없음).')
+  throw new Error('Not a HAR file (no log.entries).')
 }
 
 export function parseHar(jsonText: string, now: number): ParsedHar {
@@ -116,7 +116,7 @@ export function parseHar(jsonText: string, now: number): ParsedHar {
   try {
     data = JSON.parse(jsonText)
   } catch {
-    throw new Error('유효한 JSON이 아닙니다.')
+    throw new Error('Not valid JSON.')
   }
 
   const entries = getEntries(data)
@@ -142,7 +142,7 @@ export function parseHar(jsonText: string, now: number): ParsedHar {
   }
 
   if (requests.length === 0) {
-    throw new Error('가져올 요청이 없습니다.')
+    throw new Error('No requests to import.')
   }
 
   return { requests, resBodies }

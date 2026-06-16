@@ -9,7 +9,7 @@ export function applyPayload(template: string, payload: string): string {
 }
 
 const RANGE = /^(-?\d+)\.\.(-?\d+)(?:\.\.(\d+))?$/
-const MAX_RANGE = 10000
+const MAX_RANGE = 100000
 
 export function expandLine(line: string): string[] {
   const m = RANGE.exec(line.trim())

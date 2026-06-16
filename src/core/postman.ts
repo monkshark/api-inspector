@@ -77,7 +77,7 @@ function toPostData(body: PmBody | undefined) {
 
 export function parsePostman(data: unknown, now: number): CapturedRequest[] {
   if (!isPostmanCollection(data)) {
-    throw new Error('Postman 컬렉션 형식이 아닙니다.')
+    throw new Error('Not a Postman collection.')
   }
   const leaves: PmItem[] = []
   flatten((data as { item: PmItem[] }).item, leaves)
@@ -117,6 +117,6 @@ export function parsePostman(data: unknown, now: number): CapturedRequest[] {
     out.push(normalize(entry, now))
   }
 
-  if (out.length === 0) throw new Error('가져올 요청이 없습니다.')
+  if (out.length === 0) throw new Error('No requests to import.')
   return out
 }

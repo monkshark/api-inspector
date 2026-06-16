@@ -52,7 +52,7 @@ export default function InspectorShell() {
   const showDetail = selectedId && selected
 
   return (
-    <div className="flex h-full w-full flex-col bg-white text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
+    <div className="flex h-full w-full flex-col bg-bg text-tx">
       <FilterBar />
       <DiffBaseBanner />
       <div className="flex min-h-0 flex-1">
@@ -61,8 +61,8 @@ export default function InspectorShell() {
           <>
             <div
               onMouseDown={startResize}
-              title="드래그해서 너비 조절"
-              className="w-1 shrink-0 cursor-col-resize bg-zinc-200 transition-colors hover:bg-indigo-400 dark:bg-zinc-700 dark:hover:bg-indigo-500"
+              title="Drag to resize"
+              className="w-1 shrink-0 cursor-col-resize bg-bd transition-colors hover:bg-acc"
             />
             <DetailPanel req={selected} width={detailWidth} />
           </>

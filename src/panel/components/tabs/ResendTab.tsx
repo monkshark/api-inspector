@@ -18,11 +18,11 @@ interface HeaderRow {
 
 function statusColor(status: number): string {
   const cls = statusClass(status)
-  if (cls === '2xx') return 'text-emerald-600 dark:text-emerald-400'
-  if (cls === '3xx') return 'text-sky-600 dark:text-sky-400'
-  if (cls === '4xx') return 'text-amber-600 dark:text-amber-400'
-  if (cls === '5xx') return 'text-red-600 dark:text-red-400'
-  return 'text-zinc-400'
+  if (cls === '2xx') return 'text-grn'
+  if (cls === '3xx') return 'text-sky'
+  if (cls === '4xx') return 'text-amb'
+  if (cls === '5xx') return 'text-red'
+  return 'text-mut'
 }
 
 function parseVarsText(text: string): Record<string, string> {
@@ -49,7 +49,9 @@ function toRows(headers: Record<string, string>): HeaderRow[] {
 }
 
 const FIELD =
-  'rounded border border-zinc-300 bg-white px-2 py-1 font-mono text-xs outline-none dark:border-zinc-600 dark:bg-zinc-950'
+  'rounded-md border border-bd bg-bg px-2 py-1 font-mono text-[11.5px] text-tx outline-none'
+const SECTION =
+  'text-[10px] uppercase tracking-[0.09em] text-mut hover:text-tx'
 
 export default function ResendTab({ req }: { req: CapturedRequest }) {
   const variables = useInspectorStore((s) => s.variables)
@@ -94,7 +96,7 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
     } catch {
       void 0
     }
-    window.alert('유효한 JSON 객체/배열이 아니라 트리로 볼 수 없습니다.')
+    window.alert('Not a valid JSON object/array, so it cannot be shown as a tree.')
   }
 
   const onTreeChange = (next: unknown) => {
@@ -164,23 +166,23 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
         <input
           value={method}
           onChange={(e) => setMethod(e.target.value)}
-          title="HTTP 메서드"
+          title="HTTP method"
           className={FIELD + ' w-20 uppercase'}
         />
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://..."
-          title="요청 URL"
+          title="Request URL"
           className={FIELD + ' flex-1'}
         />
         <button
           type="button"
           onClick={onSend}
           disabled={loading}
-          className="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+          className="rounded-md bg-acc px-3 py-1 text-[11px] font-medium text-white disabled:opacity-50"
         >
-          {loading ? '전송 중…' : 'Send'}
+          {loading ? 'sending…' : 'send'}
         </button>
       </div>
 
@@ -189,7 +191,7 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
           <button
             type="button"
             onClick={() => setHeadersOpen((o) => !o)}
-            className="text-[11px] font-semibold uppercase tracking-wide text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+            className={SECTION}
           >
             <span className="inline-block w-3">{headersOpen ? '▾' : '▸'}</span>
             Headers ({rows.length})
@@ -197,9 +199,9 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
           <button
             type="button"
             onClick={() => setShowVars((s) => !s)}
-            className="ml-auto text-[11px] text-indigo-500 hover:underline"
+            className="ml-auto text-[11px] text-acc hover:underline"
           >
-            {showVars ? '변수 숨기기' : '변수 {{ }}'}
+            {showVars ? 'hide variables' : 'variables {{ }}'}
           </button>
         </div>
         {headersOpen && (
@@ -212,7 +214,7 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
                 placeholder="Header"
                 className={FIELD + ' w-40'}
               />
-              <span className="text-zinc-400">:</span>
+              <span className="text-mut">:</span>
               <input
                 value={row.value}
                 onChange={(e) => updateRow(i, { value: e.target.value })}
@@ -222,8 +224,8 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
               <button
                 type="button"
                 onClick={() => removeRow(i)}
-                title="삭제"
-                className="rounded px-1.5 py-0.5 text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                title="Remove"
+                className="rounded-md px-1.5 py-0.5 text-mut hover:bg-[var(--hov)]"
               >
                 ×
               </button>
@@ -232,9 +234,9 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
           <button
             type="button"
             onClick={addRow}
-            className="text-[11px] text-indigo-500 hover:underline"
+            className="text-[11px] text-acc hover:underline"
           >
-            + 헤더 추가
+            + add header
           </button>
         </div>
         )}
@@ -242,8 +244,8 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
 
       {showVars && (
         <div>
-          <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">
-            Variables (key=value, {'{{key}}'} 로 사용)
+          <div className="mb-1 text-[10px] uppercase tracking-[0.09em] text-mut">
+            Variables (key=value, used as {'{{key}}'})
           </div>
           <AutoTextarea
             value={varsText}
@@ -261,7 +263,7 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
           <button
             type="button"
             onClick={() => setBodyOpen((o) => !o)}
-            className="text-[11px] font-semibold uppercase tracking-wide text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+            className={SECTION}
           >
             <span className="inline-block w-3">{bodyOpen ? '▾' : '▸'}</span>
             Body
@@ -272,21 +274,21 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
               <button
                 type="button"
                 onClick={() => setBodyText((b) => prettyJson(b))}
-                title="JSON 정렬"
-                className="text-[11px] text-indigo-500 hover:underline"
+                title="Format JSON"
+                className="text-[11px] text-acc hover:underline"
               >
-                정렬
+                format
               </button>
             )}
-            <div className="flex overflow-hidden rounded border border-zinc-300 dark:border-zinc-600">
+            <div className="flex gap-0.5">
               <button
                 type="button"
                 onClick={() => setBodyView('raw')}
                 className={
-                  'px-2 py-0.5 text-[11px] font-medium ' +
+                  'flex h-[22px] items-center rounded-md px-2 text-[11px] ' +
                   (bodyView === 'raw'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700')
+                    ? 'bg-acc font-medium text-white'
+                    : 'bg-[color-mix(in_srgb,var(--mut)_16%,transparent)] text-tx')
                 }
               >
                 Raw
@@ -295,10 +297,10 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
                 type="button"
                 onClick={() => (bodyView === 'tree' ? undefined : enterTree())}
                 className={
-                  'px-2 py-0.5 text-[11px] font-medium ' +
+                  'flex h-[22px] items-center rounded-md px-2 text-[11px] ' +
                   (bodyView === 'tree'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700')
+                    ? 'bg-acc font-medium text-white'
+                    : 'bg-[color-mix(in_srgb,var(--mut)_16%,transparent)] text-tx')
                 }
               >
                 Tree
@@ -319,7 +321,7 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
           ) : (
             <div
               onKeyDown={onTreeKeyDown}
-              className="rounded border border-zinc-200 p-2 dark:border-zinc-700"
+              className="rounded-lg border border-bd p-2"
             >
               <JsonEditor value={treeState} onChange={onTreeChange} />
             </div>
@@ -327,31 +329,32 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
       </div>
 
       <div>
-        <div className="mb-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">
+        <div className="mb-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.09em] text-mut">
           Response
           {statusChanged && (
-            <span className="rounded bg-amber-100 px-1.5 font-normal normal-case text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
-              원본 {statusLabel(req.status, req.statusText)} → 변경됨
+            <span className="rounded-md bg-[var(--ambg)] px-1.5 font-normal normal-case text-amb">
+              was {statusLabel(req.status, req.statusText)} → changed
             </span>
           )}
         </div>
         {!result && (
-          <p className="text-xs text-zinc-400">
-            Send를 누르면 현재 페이지 세션으로 재전송하고 응답을 보여줍니다.
+          <p className="text-[11.5px] text-mut">
+            Press send to replay using the current page session and view the
+            response.
           </p>
         )}
         {result?.error && (
-          <p className="text-xs text-red-500">재전송 실패: {result.error}</p>
+          <p className="text-[11.5px] text-red">Resend failed: {result.error}</p>
         )}
         {result && !result.error && (
           <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-x-3 text-xs">
+            <div className="flex flex-wrap items-center gap-x-3 text-[11.5px]">
               <span
                 className={'font-mono font-semibold ' + statusColor(result.status)}
               >
                 {statusLabel(result.status, result.statusText)}
               </span>
-              <span className="text-zinc-400">{result.ms} ms</span>
+              <span className="text-mut">{result.ms} ms</span>
             </div>
             {(() => {
               const isJson = (result.headers['content-type'] ?? '').includes(
@@ -370,17 +373,17 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
               return (
                 <div>
                   {treeOk && (
-                    <div className="mb-1 inline-flex overflow-hidden rounded border border-zinc-300 dark:border-zinc-600">
+                    <div className="mb-1 inline-flex gap-0.5">
                       {(['raw', 'tree'] as const).map((v) => (
                         <button
                           key={v}
                           type="button"
                           onClick={() => setRespView(v)}
                           className={
-                            'px-2 py-0.5 text-[10px] font-medium ' +
+                            'flex h-[22px] items-center rounded-md px-2 text-[10px] ' +
                             (respView === v
-                              ? 'bg-indigo-600 text-white'
-                              : 'text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700')
+                              ? 'bg-acc font-medium text-white'
+                              : 'bg-[color-mix(in_srgb,var(--mut)_16%,transparent)] text-tx')
                           }
                         >
                           {v === 'raw' ? 'Raw' : 'Tree'}
@@ -389,11 +392,11 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
                     </div>
                   )}
                   {treeOk && respView === 'tree' ? (
-                    <div className="max-h-64 overflow-auto rounded border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-700 dark:bg-zinc-950">
+                    <div className="max-h-64 overflow-auto rounded-lg border border-bd bg-panel p-2">
                       <JsonTree data={parsed} />
                     </div>
                   ) : (
-                    <pre className="max-h-64 overflow-auto rounded border border-zinc-200 bg-zinc-50 p-2 font-mono text-xs dark:border-zinc-700 dark:bg-zinc-950">
+                    <pre className="max-h-64 overflow-auto rounded-lg border border-bd bg-panel p-2 font-mono text-[11.5px] text-tx">
                       {isJson ? prettyJson(result.body) : result.body}
                     </pre>
                   )}
@@ -401,11 +404,11 @@ export default function ResendTab({ req }: { req: CapturedRequest }) {
               )
             })()}
             {origBody != null && origBody !== result.body && (
-              <details className="text-xs">
-                <summary className="cursor-pointer text-zinc-400">
-                  원본 응답 본문 (다름)
+              <details className="text-[11.5px]">
+                <summary className="cursor-pointer text-mut">
+                  Original response body (differs)
                 </summary>
-                <pre className="mt-1 max-h-48 overflow-auto rounded border border-zinc-200 bg-zinc-50 p-2 font-mono dark:border-zinc-700 dark:bg-zinc-950">
+                <pre className="mt-1 max-h-48 overflow-auto rounded-lg border border-bd bg-panel p-2 font-mono text-tx">
                   {origBody}
                 </pre>
               </details>

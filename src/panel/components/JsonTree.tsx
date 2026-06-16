@@ -7,8 +7,8 @@ function Node({ name, value, depth }: { name?: string; value: unknown; depth: nu
 
   if (!isObject) {
     return (
-      <div style={{ paddingLeft: depth * 12 }} className="font-mono text-xs leading-5">
-        {name !== undefined && <span className="text-violet-600 dark:text-violet-400">{name}: </span>}
+      <div style={{ paddingLeft: depth * 12 }} className="font-mono text-[11.5px] leading-5">
+        {name !== undefined && <span className="text-jkey">{name}: </span>}
         <ValueLeaf value={value} />
       </div>
     )
@@ -19,15 +19,15 @@ function Node({ name, value, depth }: { name?: string; value: unknown; depth: nu
     : Object.entries(value as Record<string, unknown>)
 
   return (
-    <div style={{ paddingLeft: depth * 12 }} className="font-mono text-xs leading-5">
+    <div style={{ paddingLeft: depth * 12 }} className="font-mono text-[11.5px] leading-5">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+        className="text-mut hover:text-tx"
       >
         <span className="inline-block w-3">{open ? '▾' : '▸'}</span>
-        {name !== undefined && <span className="text-violet-600 dark:text-violet-400">{name}</span>}
-        <span className="text-zinc-400">
+        {name !== undefined && <span className="text-jkey">{name}</span>}
+        <span className="text-mut">
           {name !== undefined ? ': ' : ''}
           {isArray ? `[${entries.length}]` : `{${entries.length}}`}
         </span>
@@ -40,12 +40,12 @@ function Node({ name, value, depth }: { name?: string; value: unknown; depth: nu
 
 function ValueLeaf({ value }: { value: unknown }) {
   if (typeof value === 'string')
-    return <span className="text-emerald-600 dark:text-emerald-400">"{value}"</span>
+    return <span className="text-jstr">"{value}"</span>
   if (typeof value === 'number')
-    return <span className="text-amber-600 dark:text-amber-400">{value}</span>
+    return <span className="text-jnum">{value}</span>
   if (typeof value === 'boolean')
-    return <span className="text-sky-600 dark:text-sky-400">{String(value)}</span>
-  return <span className="text-zinc-400">null</span>
+    return <span className="text-jlit">{String(value)}</span>
+  return <span className="text-jlit">null</span>
 }
 
 export default function JsonTree({ data }: { data: unknown }) {

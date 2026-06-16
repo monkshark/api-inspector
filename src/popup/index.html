@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Inspector</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      body {
+        margin: 0;
+        width: 220px;
+        padding: 10px;
+        background: #ffffff;
+        color: #1f2328;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #0d1117;
+          color: #e6edf3;
+        }
+      }
+      button {
+        display: block;
+        width: 100%;
+        margin: 0 0 8px;
+        padding: 8px 10px;
+        font: inherit;
+        font-size: 12px;
+        text-align: left;
+        border: 1px solid #d0d7de;
+        border-radius: 8px;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+      }
+      button:last-child {
+        margin-bottom: 0;
+      }
+      button:hover {
+        border-color: #2f81f7;
+      }
+      .sub {
+        display: block;
+        margin-top: 2px;
+        opacity: 0.6;
+        font-size: 10.5px;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="viewer">
+      Open viewer
+      <span class="sub">imported HAR / Postman, read-only</span>
+    </button>
+    <button id="intercept">
+      Open interceptor
+      <span class="sub">Burp-style intercept (debugger)</span>
+    </button>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

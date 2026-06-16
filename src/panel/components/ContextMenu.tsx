@@ -31,7 +31,7 @@ export default function ContextMenu({
   return (
     <div
       style={{ top: y, left: x }}
-      className="fixed z-50 min-w-40 overflow-hidden rounded-md border border-zinc-200 bg-white py-1 text-xs shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+      className="fixed z-50 flex min-w-[184px] flex-col rounded-lg border border-bd bg-panel p-1 text-[12px] shadow-[0_16px_40px_rgba(0,0,0,0.3)]"
     >
       {items.map((item) => (
         <button
@@ -41,7 +41,7 @@ export default function ContextMenu({
             item.onClick()
             onClose()
           }}
-          className="block w-full px-3 py-1.5 text-left text-zinc-700 hover:bg-indigo-600 hover:text-white dark:text-zinc-200"
+          className="whitespace-nowrap rounded-md px-2.5 py-[7px] text-left text-tx hover:bg-acc hover:text-white"
         >
           {item.label}
         </button>

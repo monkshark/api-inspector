@@ -26,16 +26,19 @@ function Toggle({
       title={title}
       onClick={onClick}
       className={
-        'rounded px-2 py-0.5 text-xs font-medium transition ' +
+        'flex h-[22px] items-center rounded-md px-2 text-[11px] transition ' +
         (active
-          ? 'bg-indigo-600 text-white'
-          : 'bg-zinc-200 text-zinc-600 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600')
+          ? 'bg-acc font-medium text-white'
+          : 'bg-[color-mix(in_srgb,var(--mut)_16%,transparent)] text-tx')
       }
     >
       {children}
     </button>
   )
 }
+
+const ACTION_BTN =
+  'flex h-[22px] items-center gap-1 rounded-md border border-bd bg-bg px-2 text-[11px] text-mut'
 
 export default function FilterBar() {
   const filter = useInspectorStore((s) => s.filter)
@@ -62,43 +65,44 @@ export default function FilterBar() {
       const { requests, resBodies } = parseImport(await file.text(), Date.now())
       importEntries(requests, resBodies)
     } catch (err) {
-      window.alert(`가져오기 실패: ${(err as Error).message}`)
+      window.alert(`Import failed: ${(err as Error).message}`)
     }
     e.target.value = ''
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-zinc-200 bg-zinc-100 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800">
+    <div className="flex flex-wrap items-center gap-1.5 border-b border-bd bg-panel px-[11px] py-[9px]">
       <input
         value={filter.query}
         onChange={(e) => setFilter({ query: e.target.value })}
         placeholder="filter (regex)"
         className={
-          'w-40 rounded border px-2 py-1 text-xs outline-none ' +
+          'h-[22px] w-[140px] rounded-md border px-2 text-[11px] outline-none ' +
           (regexOk
-            ? 'border-zinc-300 bg-white dark:border-zinc-600 dark:bg-zinc-900'
-            : 'border-red-400 bg-red-50 dark:bg-red-950')
+            ? 'border-bd bg-bg text-tx'
+            : 'border-red bg-[color-mix(in_srgb,var(--red)_12%,var(--bg))] text-red')
         }
       />
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5">
         <input
           value={filter.bodyQuery}
           onChange={(e) => setFilter({ bodyQuery: e.target.value })}
-          placeholder="본문 검색"
-          className="w-32 rounded border border-zinc-300 bg-white px-2 py-1 text-xs outline-none dark:border-zinc-600 dark:bg-zinc-900"
+          placeholder="body search"
+          className="h-[22px] w-[110px] rounded-md border border-bd bg-bg px-2 text-[11px] text-tx outline-none"
         />
         {filter.bodyQuery && (
           <button
             type="button"
             onClick={prefetchBodies}
-            title="검색을 위해 응답 본문을 모두 불러옵니다"
-            className="rounded bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-300"
+            title="Load all response bodies for searching"
+            className="flex h-[22px] items-center rounded-md border border-acc bg-[color-mix(in_srgb,var(--acc)_16%,transparent)] px-2 text-[11px] text-tx"
           >
-            본문 로드
+            load body
           </button>
         )}
       </div>
-      <div className="flex gap-1">
+      <span className="h-4 w-px bg-bd" />
+      <div className="flex gap-[3px]">
         {METHODS.map((m) => (
           <Toggle
             key={m}
@@ -109,7 +113,8 @@ export default function FilterBar() {
           </Toggle>
         ))}
       </div>
-      <div className="flex gap-1">
+      <span className="h-4 w-px bg-bd" />
+      <div className="flex gap-[3px]">
         {STATUS_CLASSES.map((s) => (
           <Toggle
             key={s}
@@ -125,11 +130,11 @@ export default function FilterBar() {
       <Toggle
         active={filter.hideStaticAssets}
         onClick={() => setFilter({ hideStaticAssets: !filter.hideStaticAssets })}
-        title="정적 자원 숨김"
+        title="Hide static assets"
       >
         no-static
       </Toggle>
-      <div className="ml-auto flex items-center gap-1">
+      <div className="ml-auto flex items-center gap-[5px]">
         <input
           ref={fileRef}
           type="file"
@@ -140,32 +145,42 @@ export default function FilterBar() {
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="rounded bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
+          className={ACTION_BTN}
         >
           📂 import
         </button>
         <button
           type="button"
           onClick={() => setShowTools(true)}
-          title="인코더/디코더 · 해시 · 응답 스캔"
-          className="rounded bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
+          title="Encoder/decoder · hash · response scan"
+          className={ACTION_BTN}
         >
           🛠 tools
         </button>
-        <Toggle active={maskEnabled} onClick={toggleMask} title="민감 헤더 마스킹">
-          {maskEnabled ? '● mask' : '○ mask'}
-        </Toggle>
-        {isDevtools && (
-          <Toggle active={paused} onClick={togglePaused} title="수집 일시정지">
-            {paused ? '▶ resume' : '⏸ pause'}
-          </Toggle>
-        )}
-        <ExportMenu />
         <button
           type="button"
-          onClick={clear}
-          className="rounded bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
+          onClick={toggleMask}
+          title="Mask sensitive headers"
+          className={ACTION_BTN}
         >
+          {maskEnabled ? <span className="text-grn">●</span> : '○'} mask
+        </button>
+        {isDevtools && (
+          <button
+            type="button"
+            onClick={togglePaused}
+            title="Pause capture"
+            className={
+              paused
+                ? 'flex h-[22px] items-center gap-1 rounded-md border border-amb bg-[color-mix(in_srgb,var(--amb)_12%,var(--bg))] px-2 text-[11px] text-amb'
+                : ACTION_BTN
+            }
+          >
+            {paused ? '▶ resume' : '⏸ pause'}
+          </button>
+        )}
+        <ExportMenu />
+        <button type="button" onClick={clear} className={ACTION_BTN}>
           🗑 clear
         </button>
       </div>

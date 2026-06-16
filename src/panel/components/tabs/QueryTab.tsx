@@ -6,7 +6,13 @@ export default function QueryTab({ req }: { req: CapturedRequest }) {
   const mask = useInspectorStore((s) => s.maskEnabled)
 
   if (req.query.length === 0) {
-    return <p className="p-3 text-xs text-zinc-400">쿼리 파라미터 없음</p>
+    return (
+      <div className="p-3">
+        <div className="rounded-lg border border-dashed border-bd p-3.5 text-center text-[11.5px] text-mut">
+          No query parameters
+        </div>
+      </div>
+    )
   }
 
   const display = (key: string, value: string): string => {
@@ -16,18 +22,16 @@ export default function QueryTab({ req }: { req: CapturedRequest }) {
 
   return (
     <div className="p-3">
-      <div className="overflow-hidden rounded border border-zinc-200 dark:border-zinc-700">
+      <div className="overflow-hidden rounded-lg border border-bd">
         {req.query.map(([k, v], i) => (
           <div
             key={`${k}-${i}`}
-            className="grid grid-cols-[10rem_1fr] gap-2 border-b border-zinc-100 px-2 py-1 text-xs last:border-0 dark:border-zinc-800"
+            className="grid grid-cols-[10rem_1fr] gap-2.5 border-b border-bd px-[9px] py-1.5 text-[12px] last:border-0"
           >
-            <span className="truncate font-mono font-medium text-zinc-500" title={k}>
+            <span className="truncate font-medium text-mut" title={k}>
               {k}
             </span>
-            <span className="break-all font-mono text-zinc-800 dark:text-zinc-200">
-              {display(k, v)}
-            </span>
+            <span className="break-all text-tx">{display(k, v)}</span>
           </div>
         ))}
       </div>

@@ -33,7 +33,7 @@ afterEach(() => cleanup())
 describe('panel capture', () => {
   it('shows the empty state before any request', () => {
     render(<App />)
-    expect(screen.getByText('아직 수집된 요청이 없습니다.')).toBeInTheDocument()
+    expect(screen.getByText('No requests captured yet.')).toBeInTheDocument()
   })
 
   it('renders a row when a request is captured', () => {
@@ -68,7 +68,7 @@ describe('panel masking', () => {
     fireEvent.click(screen.getByText('/v1/login'))
     expect(screen.getByText('Bearer ***MASKED***')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByText('● mask'))
+    fireEvent.click(screen.getByTitle('Mask sensitive headers'))
     expect(screen.getByText('Bearer supersecrettoken123')).toBeInTheDocument()
   })
 })
@@ -114,7 +114,7 @@ describe('panel convert', () => {
 
     expect(screen.getByText(/curl '/)).toBeInTheDocument()
 
-    fireEvent.click(screen.getByText('Copy'))
+    fireEvent.click(screen.getByText('copy'))
     await waitFor(() => expect(writeText).toHaveBeenCalled())
     expect(writeText.mock.calls[0][0]).toContain('curl')
   })
