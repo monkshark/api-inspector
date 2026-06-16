@@ -1,4 +1,4 @@
-![API Inspector](banner.png)
+![API Inspector — DevTools 패널에서 API 호출을 캡처·마스킹·변환·재전송·가로채기](assets/banner.svg)
 
 # API Inspector
 

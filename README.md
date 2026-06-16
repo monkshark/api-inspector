@@ -1,4 +1,4 @@
-![API Inspector](banner.png)
+![API Inspector — capture, mask, convert, replay, and intercept API calls in a DevTools panel](assets/banner.svg)
 
 # API Inspector
 
