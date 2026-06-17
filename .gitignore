@@ -8,4 +8,5 @@ test-server
 img.png
 img_1.png
 DESIGN-PROMPTS.md
-store/*.zip
+store/*
+!store/PRIVACY.md
