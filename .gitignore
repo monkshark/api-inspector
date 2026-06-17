@@ -5,8 +5,6 @@ dist
 node_modules/.tmp
 plan.md
 test-server
-img.png
-img_1.png
 DESIGN-PROMPTS.md
 store/*
 !store/PRIVACY.md
