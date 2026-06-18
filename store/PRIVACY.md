@@ -42,9 +42,8 @@ ignored; it has no effect on captured data.
 
 ## Permissions
 
-The extension requests the minimum permissions needed for its features. Each
-permission is used only on your own device for the feature described in the store
-listing, and never to gather data for the developer.
+Each permission the extension requests is used only on your own device for the
+feature described in the store listing, and never to gather data for the developer.
 
 ## Contact
 
@@ -93,8 +92,8 @@ APIScope는 캡처한 트래픽, 요청 본문, 헤더, 토큰 등 어떤 내용
 
 ## 권한
 
-확장은 기능에 필요한 최소 권한만 요청합니다. 각 권한은 스토어 설명에 적힌 기능을 위해
-사용자 기기 안에서만 쓰이며, 개발자를 위한 데이터 수집에는 절대 쓰이지 않습니다.
+확장이 요청하는 각 권한은 스토어 설명에 적힌 기능을 위해 사용자 기기 안에서만 쓰이며,
+개발자를 위한 데이터 수집에는 절대 쓰이지 않습니다.
 
 ## 연락처
 
